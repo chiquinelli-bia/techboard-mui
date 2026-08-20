@@ -2,13 +2,18 @@ import {
   AppBar,
   Box,
   Button,
-  TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
 // import { styled } from "@mui/material/styles";
 
-import tecboardLogo from "../../assets/tecboard.sgv";
+import tecboardLogo from "../../assets/tecboard.svg";
 import bannerImage from "../../assets/banner.png";
 
 // const eventCategories = [
@@ -162,10 +167,99 @@ export const Board = () => {
         </Box>
       </Box>
 
-      <TextField />
-      <TextField />
-      <TextField />
-      <Button></Button>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          backgroundColor: "#06151A",
+          py: 8,
+        }}
+      >
+        {/* Formulário */}
+        <Box
+          component="form"
+          onSubmit
+          sx={{
+            backgroundColor: "#212121",
+            width: "100%",
+            maxWidth: "384px",
+            py: "32px",
+            px: "28px",
+            borderRadius: 2,
+          }}
+        >
+          <Typography>Preencha para criar um evento:</Typography>
+          <Stack spacing={2}>
+            <FormControl fullWidth>
+              <InputLabel
+                shrink
+                htmlFor="name"
+                sx={{ position: "static", transform: "none", mb: 1 }}
+              >
+                Qual o nome do evento?
+              </InputLabel>
+              <OutlinedInput
+                id="name"
+                placeholder="Summer dev hits"
+                fullWidth
+                sx={{ height: "36px" }}
+                name="name"
+                onChange={handleChange}
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel
+                shrink
+                htmlFor="date"
+                sx={{ position: "static", transform: "none", mb: 1 }}
+              >
+                Data do evento
+              </InputLabel>
+              <OutlinedInput
+                id="date"
+                placeholder="XX/XX/XXXX"
+                fullWidth
+                sx={{ height: "36px" }}
+                name="date"
+                onChange={handleChange}
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel
+                shrink
+                htmlFor="theme"
+                sx={{ position: "static", transform: "none", mb: 1 }}
+              >
+                Tema do evento
+              </InputLabel>
+              <Select
+                id="theme"
+                defaultValue=""
+                displayEmpty
+                fullWidth
+                name="theme"
+                onChange={handleChange}
+                sx={{ height: "36px" }}
+              >
+                <MenuItem value="" disabled>
+                  Selecione uma opção
+                </MenuItem>
+                <MenuItem value="Front-end">Front-end</MenuItem>
+                <MenuItem value="Design">Design</MenuItem>
+                <MenuItem value="Marketing">Marketing</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Button type="submit" sx={{ alignSelf: "center" }}>
+              Criar evento
+            </Button>
+          </Stack>
+        </Box>
+      </Box>
     </Box>
   );
 };
