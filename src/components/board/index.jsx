@@ -15,6 +15,7 @@ import {
 
 import tecboardLogo from "../../assets/tecboard.svg";
 import bannerImage from "../../assets/banner.png";
+import { useState } from "react";
 
 // const eventCategories = [
 //   {
@@ -127,6 +128,16 @@ import bannerImage from "../../assets/banner.png";
 // }));
 
 export const Board = () => {
+  const [formData, setFormData] = useState({ name: "", date: "", theme: "" });
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+  }
   return (
     <Box sx={{ height: "100vh", backgroundColor: "#06151A" }}>
       {/* Header */}
@@ -180,7 +191,7 @@ export const Board = () => {
         {/* Formulário */}
         <Box
           component="form"
-          onSubmit
+          onSubmit={handleSubmit}
           sx={{
             backgroundColor: "#212121",
             width: "100%",
@@ -207,6 +218,7 @@ export const Board = () => {
                 sx={{ height: "36px" }}
                 name="name"
                 onChange={handleChange}
+                value={formData.name}
               />
             </FormControl>
 
@@ -225,6 +237,7 @@ export const Board = () => {
                 sx={{ height: "36px" }}
                 name="date"
                 onChange={handleChange}
+                value={formData.date}
               />
             </FormControl>
 
@@ -243,6 +256,7 @@ export const Board = () => {
                 fullWidth
                 name="theme"
                 onChange={handleChange}
+                value={formData.theme}
                 sx={{ height: "36px" }}
               >
                 <MenuItem value="" disabled>
