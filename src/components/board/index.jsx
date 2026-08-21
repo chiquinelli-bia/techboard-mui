@@ -16,6 +16,7 @@ import {
 import tecboardLogo from "../../assets/tecboard.svg";
 import bannerImage from "../../assets/banner.png";
 import { useState } from "react";
+import { eventSchema } from "../../schema";
 
 // const eventCategories = [
 //   {
@@ -129,6 +130,7 @@ import { useState } from "react";
 
 export const Board = () => {
   const [formData, setFormData] = useState({ name: "", date: "", theme: "" });
+  const [error, setError] = useState("");
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -137,7 +139,16 @@ export const Board = () => {
 
   function handleSubmit(event) {
     event.preventDefault();
+    const result = eventSchema.safeParse(formData);
+
+    if (result.success) {
+      console.log(result.data);
+    } else {
+      const firstError = result.error.issues[0];
+      setError(firstError.message);
+    }
   }
+
   return (
     <Box sx={{ height: "100vh", backgroundColor: "#06151A" }}>
       {/* Header */}
