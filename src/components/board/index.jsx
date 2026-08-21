@@ -16,8 +16,8 @@ import {
 import tecboardLogo from "../../assets/tecboard.svg";
 import bannerImage from "../../assets/banner.png";
 import { useForm, Controller } from "react-hook-form";
-// import { eventSchema } from "../../schema";
-// import { zodResolver } from '@hookform/resolvers/zod'
+import { eventSchema } from "../../schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 // const eventCategories = [
 //   {
@@ -133,8 +133,11 @@ export const Board = () => {
   const {
     handleSubmit,
     control,
-    // formState: { errors },
-  } = useForm();
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(eventSchema),
+  });
+  console.log(errors);
 
   function handleOnSubmit(data) {
     console.log(data);
@@ -222,7 +225,6 @@ export const Board = () => {
                     placeholder="Summer dev hits"
                     fullWidth
                     sx={{ height: "36px" }}
-                    name="name"
                     {...field}
                   />
                 )}
@@ -246,7 +248,6 @@ export const Board = () => {
                     placeholder="XX/XX/XXXX"
                     fullWidth
                     sx={{ height: "36px" }}
-                    name="date"
                     {...field}
                   />
                 )}
@@ -271,7 +272,6 @@ export const Board = () => {
                     defaultValue=""
                     displayEmpty
                     fullWidth
-                    name="theme"
                     sx={{ height: "36px" }}
                   >
                     <MenuItem value="" disabled>
