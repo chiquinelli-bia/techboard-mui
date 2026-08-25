@@ -22,108 +22,7 @@ import { useForm, Controller } from "react-hook-form";
 import { eventSchema } from "../../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import styled from "@emotion/styled";
-
-const eventCategories = [
-  {
-    name: "Front-end",
-    events: [
-      {
-        id: 1,
-        name: "Workshop React",
-        theme: "Front-end",
-        date: "20/05/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 2,
-        name: "Conference JS",
-        theme: "Front-end",
-        date: "15/06/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 3,
-        name: "Vue.js Masterclass",
-        theme: "Front-end",
-        date: "10/07/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 4,
-        name: "Angular Workshop",
-        theme: "Front-end",
-        date: "25/07/2025",
-        image: "https://placehold.co/236x282",
-      },
-    ],
-  },
-  {
-    name: "Design",
-    events: [
-      {
-        id: 5,
-        name: "UX/UI Design",
-        theme: "Design",
-        date: "05/08/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 6,
-        name: "Figma Masterclass",
-        theme: "Design",
-        date: "12/08/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 7,
-        name: "Design Thinking",
-        theme: "Design",
-        date: "20/08/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 8,
-        name: "Adobe Creative",
-        theme: "Design",
-        date: "30/08/2025",
-        image: "https://placehold.co/236x282",
-      },
-    ],
-  },
-  {
-    name: "Marketing",
-    events: [
-      {
-        id: 9,
-        name: "Marketing Digital",
-        theme: "Marketing",
-        date: "05/09/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 10,
-        name: "SEO Avançado",
-        theme: "Marketing",
-        date: "15/09/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 11,
-        name: "Social Media",
-        theme: "Marketing",
-        date: "25/09/2025",
-        image: "https://placehold.co/236x282",
-      },
-      {
-        id: 12,
-        name: "Growth Hacking",
-        theme: "Marketing",
-        date: "05/10/2025",
-        image: "https://placehold.co/236x282",
-      },
-    ],
-  },
-];
+import { useEffect, useState } from "react";
 
 const Chip = styled(Box)(({ theme }) => ({
   display: "inline-flex",
@@ -134,6 +33,7 @@ const Chip = styled(Box)(({ theme }) => ({
 }));
 
 export const Board = () => {
+  const [data, setData] = useState([]);
   const {
     handleSubmit,
     control,
@@ -146,6 +46,20 @@ export const Board = () => {
   function handleOnSubmit(data) {
     console.log(data);
   }
+  async function getEvents() {
+    const res = await fetch(
+      "https://6a105526d2a985707036a9b1.mockapi.io/tech-board-events",
+    );
+    return res.json();
+  }
+  useEffect(() => {
+    async function fetchData() {
+      const events = await getEvents();
+      setData(events);
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <Box sx={{ height: "100vh", backgroundColor: "#06151A" }}>
@@ -305,7 +219,7 @@ export const Board = () => {
             gap: "64px",
           }}
         >
-          {eventCategories.map((category) => (
+          {data.map((category) => (
             <Box key={category.name}>
               <Typography>{category.name}</Typography>
 
@@ -315,7 +229,7 @@ export const Board = () => {
                 sx={{ maxWidth: "1200px", mx: "auto" }}
               >
                 {category.events.map((event) => (
-                  <Grid item xs={12} sm={6} md={4} key={event.id}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
                     <Card sx={{ width: "282px" }}>
                       <CardMedia
                         component="img"
