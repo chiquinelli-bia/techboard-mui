@@ -14,6 +14,7 @@ import {
   Stack,
   Toolbar,
   Typography,
+  Chip,
 } from "@mui/material";
 
 import tecboardLogo from "../../assets/tecboard.svg";
@@ -25,18 +26,15 @@ import styled from "@emotion/styled";
 
 import { useQuery } from "@tanstack/react-query";
 
-const Chip = styled(Box)(({ theme }) => ({
-  display: "inline-flex",
+const ChipEstilizado = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.textSecondary,
-  padding: "8px",
-  borderRadius: "4px",
-  mb: 1,
 }));
 
 export const Board = () => {
   const { handleSubmit, control } = useForm({
     resolver: zodResolver(eventSchema),
   });
+  const categories = ["Front-end", "Back-end", "Design"];
 
   async function getEvents() {
     const res = await fetch(
@@ -189,7 +187,7 @@ export const Board = () => {
                     </MenuItem>
                     <MenuItem value="Front-end">Front-end</MenuItem>
                     <MenuItem value="Design">Design</MenuItem>
-                    <MenuItem value="Marketing">Marketing</MenuItem>
+                    <MenuItem value="Marketing">Back-end</MenuItem>
                   </Select>
                 )}
               />
@@ -216,46 +214,49 @@ export const Board = () => {
           {isLoading && <Typography>Ta carregando</Typography>}
           {!isError &&
             !isLoading &&
-            data.map((category) => (
-              <Box key={category.name}>
-                <Typography variant="h4">{category.name}</Typography>
+            categories.map((category) => {
+              const eventsByCategory = data.filter(
+                (event) => event.theme === category,
+              );
 
-                <Grid
-                  container
-                  spacing={3}
-                  sx={{ maxWidth: "1200px", mx: "auto" }}
-                >
-                  {category.events.map((event) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
-                      <Card sx={{ width: "282px" }}>
-                        <CardMedia
-                          component="img"
-                          height="236px"
-                          image={event.image}
-                          alt={event.name}
-                        />
-                        <CardContent
-                          sx={{
-                            flexGrow: 1,
-                            py: 3,
-                            px: 2,
-                            backgroundColor: "#212121",
-                          }}
-                        >
-                          <Chip>
-                            <Typography variant="caption">
-                              {event.theme}
-                            </Typography>
-                          </Chip>
-                          <Typography>{event.date}</Typography>
-                          <Typography>{event.name}</Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            ))}
+              return (
+                <Box key={category}>
+                  <Typography variant="h4">{category}</Typography>
+
+                  <Grid
+                    container
+                    spacing={3}
+                    sx={{ maxWidth: "1200px", mx: "auto" }}
+                  >
+                    {eventsByCategory.map((event) => (
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
+                        <Card sx={{ width: "282px" }}>
+                          <CardMedia
+                            component="img"
+                            height="236px"
+                            image={event.image}
+                            alt={event.name}
+                          />
+
+                          <CardContent
+                            sx={{
+                              flexGrow: 1,
+                              py: 3,
+                              px: 2,
+                              backgroundColor: "#212121",
+                            }}
+                          >
+                            <ChipEstilizado label={event.theme} />
+                            <Typography>{event.date}</Typography>
+                            <Typography>{event.name}</Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              );
+            })}
         </Box>
       </Box>
     </Box>
