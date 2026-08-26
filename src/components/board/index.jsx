@@ -22,7 +22,8 @@ import { useForm, Controller } from "react-hook-form";
 import { eventSchema } from "../../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+
+import { useQuery } from "@tanstack/react-query";
 
 const Chip = styled(Box)(({ theme }) => ({
   display: "inline-flex",
@@ -33,33 +34,24 @@ const Chip = styled(Box)(({ theme }) => ({
 }));
 
 export const Board = () => {
-  const [data, setData] = useState([]);
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm({
+  const { handleSubmit, control } = useForm({
     resolver: zodResolver(eventSchema),
   });
-  console.log(errors);
 
-  function handleOnSubmit(data) {
-    console.log(data);
-  }
   async function getEvents() {
     const res = await fetch(
       "https://6a105526d2a985707036a9b1.mockapi.io/tech-board-events",
     );
     return res.json();
   }
-  useEffect(() => {
-    async function fetchData() {
-      const events = await getEvents();
-      setData(events);
-    }
 
-    fetchData();
-  }, []);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["events"],
+    queryFn: getEvents,
+  });
+  function handleOnSubmit(data) {
+    console.log(data);
+  }
 
   return (
     <Box sx={{ height: "100vh", backgroundColor: "#06151A" }}>
@@ -219,46 +211,51 @@ export const Board = () => {
             gap: "64px",
           }}
         >
-          {data.map((category) => (
-            <Box key={category.name}>
-              <Typography>{category.name}</Typography>
+          {isError && <Typography>Deu ruim</Typography>}
 
-              <Grid
-                container
-                spacing={3}
-                sx={{ maxWidth: "1200px", mx: "auto" }}
-              >
-                {category.events.map((event) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
-                    <Card sx={{ width: "282px" }}>
-                      <CardMedia
-                        component="img"
-                        height="236px"
-                        image={event.image}
-                        alt={event.name}
-                      />
-                      <CardContent
-                        sx={{
-                          flexGrow: 1,
-                          py: 3,
-                          px: 2,
-                          backgroundColor: "#212121",
-                        }}
-                      >
-                        <Chip>
-                          <Typography variant="caption">
-                            {event.theme}
-                          </Typography>
-                        </Chip>
-                        <Typography>{event.date}</Typography>
-                        <Typography>{event.name}</Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          ))}
+          {isLoading && <Typography>Ta carregando</Typography>}
+          {!isError &&
+            !isLoading &&
+            data.map((category) => (
+              <Box key={category.name}>
+                <Typography variant="h4">{category.name}</Typography>
+
+                <Grid
+                  container
+                  spacing={3}
+                  sx={{ maxWidth: "1200px", mx: "auto" }}
+                >
+                  {category.events.map((event) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
+                      <Card sx={{ width: "282px" }}>
+                        <CardMedia
+                          component="img"
+                          height="236px"
+                          image={event.image}
+                          alt={event.name}
+                        />
+                        <CardContent
+                          sx={{
+                            flexGrow: 1,
+                            py: 3,
+                            px: 2,
+                            backgroundColor: "#212121",
+                          }}
+                        >
+                          <Chip>
+                            <Typography variant="caption">
+                              {event.theme}
+                            </Typography>
+                          </Chip>
+                          <Typography>{event.date}</Typography>
+                          <Typography>{event.name}</Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            ))}
         </Box>
       </Box>
     </Box>
