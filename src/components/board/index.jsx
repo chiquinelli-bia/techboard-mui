@@ -24,7 +24,7 @@ import { eventSchema } from "../../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import styled from "@emotion/styled";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ChipEstilizado = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.textSecondary,
@@ -43,11 +43,40 @@ export const Board = () => {
     return res.json();
   }
 
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["events"],
+    queryKey: ["getEvents"],
     queryFn: getEvents,
   });
+
+  async function postEvents(event) {
+    const response = await fetch(
+      "https://6a105526d2a985707036a9b1.mockapi.io/tech-board-events",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(event),
+      },
+    );
+    return response.json();
+  }
+
+  const postEventMutation = useMutation({
+    mutationKey: ["postEvents"],
+    mutationFn: postEvents,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["getEvents"] });
+    },
+  });
+
   function handleOnSubmit(data) {
+    postEventMutation.mutate({
+      ...data,
+      image: "https://placehold.co/236x282",
+    });
     console.log(data);
   }
 
