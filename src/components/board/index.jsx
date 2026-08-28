@@ -19,35 +19,45 @@ import {
 
 import tecboardLogo from "../../assets/tecboard.svg";
 import bannerImage from "../../assets/banner.png";
+
 import { useForm, Controller } from "react-hook-form";
 import { eventSchema } from "../../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import styled from "@emotion/styled";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 const ChipEstilizado = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.textSecondary,
 }));
 
 export const Board = () => {
+  const queryClient = useQueryClient();
+
   const { handleSubmit, control } = useForm({
     resolver: zodResolver(eventSchema),
   });
-  const categories = ["Front-end", "Back-end", "Design"];
 
-  async function getEvents() {
+  const [page, setPage] = useState();
+
+  async function getEvents(page = 1) {
     const res = await fetch(
-      "https://6a105526d2a985707036a9b1.mockapi.io/tech-board-events",
+      `https://6a105526d2a985707036a9b1.mockapi.io/tech-board-events?page=${page}&limit=6`,
     );
+    if (!res.ok) {
+      throw new Error("Erro ao buscar eventos");
+    }
+    console.log(res);
     return res.json();
   }
 
-  const queryClient = useQueryClient();
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["getEvents"],
-    queryFn: getEvents,
+  const {
+    data: eventsData = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["getEvents", page],
+    queryFn: () => getEvents(page),
   });
 
   async function postEvents(event) {
@@ -61,6 +71,7 @@ export const Board = () => {
         body: JSON.stringify(event),
       },
     );
+
     return response.json();
   }
 
@@ -68,7 +79,9 @@ export const Board = () => {
     mutationKey: ["postEvents"],
     mutationFn: postEvents,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["getEvents"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["getEvents"],
+      });
     },
   });
 
@@ -77,6 +90,7 @@ export const Board = () => {
       ...data,
       image: "https://placehold.co/236x282",
     });
+
     console.log(data);
   }
 
@@ -88,6 +102,7 @@ export const Board = () => {
           <img src={tecboardLogo} alt="Logo" style={{ height: "28px" }} />
         </Toolbar>
       </AppBar>
+
       {/* Seção de Banner */}
       <Box
         sx={{
@@ -103,6 +118,7 @@ export const Board = () => {
       >
         <Box sx={{ position: "relative" }}>
           <img src={bannerImage} />
+
           <Typography
             variant="h1"
             component="h1"
@@ -144,15 +160,21 @@ export const Board = () => {
           }}
         >
           <Typography>Preencha para criar um evento:</Typography>
+
           <Stack spacing={2}>
             <FormControl fullWidth>
               <InputLabel
                 shrink
                 htmlFor="name"
-                sx={{ position: "static", transform: "none", mb: 1 }}
+                sx={{
+                  position: "static",
+                  transform: "none",
+                  mb: 1,
+                }}
               >
                 Qual o nome do evento?
               </InputLabel>
+
               <Controller
                 control={control}
                 name="name"
@@ -172,10 +194,15 @@ export const Board = () => {
               <InputLabel
                 shrink
                 htmlFor="date"
-                sx={{ position: "static", transform: "none", mb: 1 }}
+                sx={{
+                  position: "static",
+                  transform: "none",
+                  mb: 1,
+                }}
               >
                 Data do evento
               </InputLabel>
+
               <Controller
                 control={control}
                 name="date"
@@ -195,10 +222,15 @@ export const Board = () => {
               <InputLabel
                 shrink
                 htmlFor="theme"
-                sx={{ position: "static", transform: "none", mb: 1 }}
+                sx={{
+                  position: "static",
+                  transform: "none",
+                  mb: 1,
+                }}
               >
                 Tema do evento
               </InputLabel>
+
               <Controller
                 control={control}
                 name="theme"
@@ -214,9 +246,12 @@ export const Board = () => {
                     <MenuItem value="" disabled>
                       Selecione uma opção
                     </MenuItem>
+
                     <MenuItem value="Front-end">Front-end</MenuItem>
+
                     <MenuItem value="Design">Design</MenuItem>
-                    <MenuItem value="Marketing">Back-end</MenuItem>
+
+                    <MenuItem value="Back-end">Back-end</MenuItem>
                   </Select>
                 )}
               />
@@ -227,6 +262,7 @@ export const Board = () => {
             </Button>
           </Stack>
         </Box>
+
         {/* Lista de eventos */}
         <Box
           sx={{
@@ -241,51 +277,38 @@ export const Board = () => {
           {isError && <Typography>Deu ruim</Typography>}
 
           {isLoading && <Typography>Ta carregando</Typography>}
-          {!isError &&
-            !isLoading &&
-            categories.map((category) => {
-              const eventsByCategory = data.filter(
-                (event) => event.theme === category,
-              );
 
-              return (
-                <Box key={category}>
-                  <Typography variant="h4">{category}</Typography>
+          <Grid container spacing={3} sx={{ maxWidth: "1200px", mx: "auto" }}>
+            {!isError &&
+              !isLoading &&
+              eventsData.map((event) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
+                  <Card sx={{ width: "282px" }}>
+                    <CardMedia
+                      component="img"
+                      height="236px"
+                      image={event.image}
+                      alt={event.name}
+                    />
 
-                  <Grid
-                    container
-                    spacing={3}
-                    sx={{ maxWidth: "1200px", mx: "auto" }}
-                  >
-                    {eventsByCategory.map((event) => (
-                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={event.id}>
-                        <Card sx={{ width: "282px" }}>
-                          <CardMedia
-                            component="img"
-                            height="236px"
-                            image={event.image}
-                            alt={event.name}
-                          />
+                    <CardContent
+                      sx={{
+                        flexGrow: 1,
+                        py: 3,
+                        px: 2,
+                        backgroundColor: "#212121",
+                      }}
+                    >
+                      <ChipEstilizado label={event.theme} />
 
-                          <CardContent
-                            sx={{
-                              flexGrow: 1,
-                              py: 3,
-                              px: 2,
-                              backgroundColor: "#212121",
-                            }}
-                          >
-                            <ChipEstilizado label={event.theme} />
-                            <Typography>{event.date}</Typography>
-                            <Typography>{event.name}</Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Box>
-              );
-            })}
+                      <Typography>{event.date}</Typography>
+
+                      <Typography>{event.name}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+          </Grid>
         </Box>
       </Box>
     </Box>
