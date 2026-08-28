@@ -38,7 +38,7 @@ export const Board = () => {
     resolver: zodResolver(eventSchema),
   });
 
-  const [page, setPage] = useState();
+  const [page, setPage] = useState(1);
 
   async function getEvents(page = 1) {
     const res = await fetch(
@@ -47,7 +47,6 @@ export const Board = () => {
     if (!res.ok) {
       throw new Error("Erro ao buscar eventos");
     }
-    console.log(res);
     return res.json();
   }
 
@@ -274,6 +273,24 @@ export const Board = () => {
             gap: "64px",
           }}
         >
+          <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }} j>
+            <Button
+              onClick={() => {
+                setPage((currentPage) => currentPage - 1);
+              }}
+              disabled={page === 1}
+            >
+              Página anterior
+            </Button>
+            <Button
+              disabled={eventsData.length < 6}
+              onClick={() => {
+                setPage((currentPage) => currentPage + 1);
+              }}
+            >
+              Próxima página
+            </Button>
+          </Box>
           {isError && <Typography>Deu ruim</Typography>}
 
           {isLoading && <Typography>Ta carregando</Typography>}
